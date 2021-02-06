@@ -1,0 +1,657 @@
+{
+  "description": "A New Flow",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        {
+          "next": "welcome",
+          "event": "incomingMessage"
+        },
+        {
+          "next": "welcome1",
+          "event": "incomingCall"
+        },
+        {
+          "event": "incomingRequest"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "welcome",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "Choice",
+          "event": "incomingMessage"
+        },
+        {
+          "next": "welcome",
+          "event": "timeout"
+        },
+        {
+          "next": "welcome",
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 150,
+          "y": 230
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Welcome to SMS penpal! Would you like to find a penpal?",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "Choice",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "Bye",
+          "event": "noMatch"
+        },
+        {
+          "next": "getName",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to Yes, sure, yeah, why not, of course",
+              "arguments": [
+                "{{widgets.welcome.inbound.From}}"
+              ],
+              "type": "equal_to",
+              "value": "Yes, sure, yea, yeah, why not, of course, go, start, yup, yep"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.welcome.inbound.From}}",
+        "offset": {
+          "x": 160,
+          "y": 490
+        }
+      }
+    },
+    {
+      "name": "Bye",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "next": "Bye",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -288,
+          "y": 543
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "No problem, bye!"
+      }
+    },
+    {
+      "name": "getName",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "database",
+          "event": "incomingMessage"
+        },
+        {
+          "next": "getName",
+          "event": "timeout"
+        },
+        {
+          "next": "getName",
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 260,
+          "y": 770
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Great! What is your name?",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "database",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "getNumber",
+          "event": "success"
+        },
+        {
+          "next": "getNumber",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -110,
+          "y": 980
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "url": "https://smspenpal-default-rtdb.firebaseio.com/"
+      }
+    },
+    {
+      "name": "getNumber",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "database2",
+          "event": "incomingMessage"
+        },
+        {
+          "next": "getNumber",
+          "event": "timeout"
+        },
+        {
+          "next": "getNumber",
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 280,
+          "y": 1170
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Cool. What is your mobile phone number?",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "database2",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "getLanguage",
+          "event": "success"
+        },
+        {
+          "next": "getLanguage",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -110,
+          "y": 1340
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "url": "https://smspenpal-default-rtdb.firebaseio.com/"
+      }
+    },
+    {
+      "name": "database3",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "getPreference",
+          "event": "success"
+        },
+        {
+          "next": "getPreference",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -110,
+          "y": 1670
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "url": "https://smspenpal-default-rtdb.firebaseio.com/"
+      }
+    },
+    {
+      "name": "getLanguage",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "database3",
+          "event": "incomingMessage"
+        },
+        {
+          "next": "getLanguage",
+          "event": "timeout"
+        },
+        {
+          "next": "getLanguage",
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 300,
+          "y": 1470
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Brillant! What is your preferred language?",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "getPreference",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "database4",
+          "event": "incomingMessage"
+        },
+        {
+          "next": "getPreference",
+          "event": "timeout"
+        },
+        {
+          "next": "getPreference",
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 310,
+          "y": 1770
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "To minimize cost, you will be paired to penpals in your country, Is that fine for you?",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "database4",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "End",
+          "event": "success"
+        },
+        {
+          "next": "End",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -120,
+          "y": 1970
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "url": "https://smspenpal-default-rtdb.firebaseio.com/"
+      }
+    },
+    {
+      "name": "End",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "next": "End",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 260,
+          "y": 2110
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "You're all set! We will message you when you are paired to a penpal. Goodbye!"
+      }
+    },
+    {
+      "name": "welcome1",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "gather_Name",
+          "event": "keypress"
+        },
+        {
+          "next": "choice1",
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 830,
+          "y": 190
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "Welcome to SMS penpal! Would you like to find a penpal? Press any keys to continue",
+        "stop_gather": true,
+        "gather_language": "en",
+        "profanity_filter": "true",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "choice1",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "goodbye",
+          "event": "noMatch"
+        },
+        {
+          "next": "gather_Name",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to go, start, continue, yes, yeah, yep, yup, of course, why not",
+              "arguments": [
+                "{{widgets.welcome.inbound.From}}"
+              ],
+              "type": "equal_to",
+              "value": "go, start, continue, yes, yeah, yep, yup, of course, why not"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.welcome.inbound.From}}",
+        "offset": {
+          "x": 930,
+          "y": 490
+        }
+      }
+    },
+    {
+      "name": "gather_Name",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "event": "keypress"
+        },
+        {
+          "next": "database_1",
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 860,
+          "y": 750
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "First things first... What is your name?",
+        "stop_gather": true,
+        "gather_language": "en",
+        "profanity_filter": "true",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "goodbye",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 1590,
+          "y": 500
+        },
+        "loop": 1,
+        "say": "No worries, goodbye!"
+      }
+    },
+    {
+      "name": "database_1",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "gather_Number",
+          "event": "success"
+        },
+        {
+          "next": "gather_Number",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 1310,
+          "y": 850
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "url": "https://smspenpal-default-rtdb.firebaseio.com/"
+      }
+    },
+    {
+      "name": "gather_Number",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "database_2",
+          "event": "keypress"
+        },
+        {
+          "next": "database_2",
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 870,
+          "y": 1020
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "Cool. What's your mobile phone? You can type or say it",
+        "stop_gather": true,
+        "gather_language": "en",
+        "profanity_filter": "true",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "gather_Language",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "event": "keypress"
+        },
+        {
+          "next": "database_3",
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 860,
+          "y": 1330
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "Brillant! What is your preferred language?",
+        "stop_gather": true,
+        "gather_language": "en",
+        "profanity_filter": "true",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "database_2",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "gather_Language",
+          "event": "success"
+        },
+        {
+          "next": "gather_Language",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 1320,
+          "y": 1210
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "url": "https://smspenpal-default-rtdb.firebaseio.com/"
+      }
+    },
+    {
+      "name": "database_3",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "gather_Preference",
+          "event": "success"
+        },
+        {
+          "next": "gather_Preference",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 1310,
+          "y": 1510
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "url": "https://smspenpal-default-rtdb.firebaseio.com/"
+      }
+    },
+    {
+      "name": "database_4",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "End_call",
+          "event": "success"
+        },
+        {
+          "next": "End_call",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 1320,
+          "y": 1840
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "url": "https://smspenpal-default-rtdb.firebaseio.com/"
+      }
+    },
+    {
+      "name": "gather_Preference",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "event": "keypress"
+        },
+        {
+          "next": "database_4",
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 860,
+          "y": 1710
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "To minimize cost, you will be paired to penpals in your country, Is that fine for you?",
+        "stop_gather": true,
+        "gather_language": "en",
+        "profanity_filter": "true",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "End_call",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 860,
+          "y": 2020
+        },
+        "loop": 1,
+        "say": "You're all set! We will message you when you are paired to a penpal. Goodbye!"
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
+  }
+}
